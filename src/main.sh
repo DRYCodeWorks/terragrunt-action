@@ -102,6 +102,13 @@ function setup_permissions {
   fi
   # set permissions for .terraform directories, if any
   sudo find /github/workspace -name ".terraform*" -exec chmod -R 777 {} \;
+  # Match container's docker group GID to the host's socket GID
+  # so the Terraform Docker provider can build/push images via DooD
+  if [ -S /var/run/docker.sock ]; then
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
+    sudo groupmod -g "$DOCKER_GID" docker
+    log "Docker socket GID set to ${DOCKER_GID}"
+  fi
 }
 
 function setup_aws_credentials_file() {
