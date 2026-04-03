@@ -102,12 +102,12 @@ function setup_permissions {
   fi
   # set permissions for .terraform directories, if any
   sudo find /github/workspace -name ".terraform*" -exec chmod -R 777 {} \;
-  # Match container's docker group GID to the host's socket GID
-  # so the Terraform Docker provider can build/push images via DooD
+  # Allow Docker-out-of-Docker (DooD) via mounted socket
+  # groupmod alone doesn't work — the running process keeps its original GIDs.
+  # chmod is reliable and safe in an ephemeral CI container.
   if [ -S /var/run/docker.sock ]; then
-    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
-    sudo groupmod -g "$DOCKER_GID" docker
-    log "Docker socket GID set to ${DOCKER_GID}"
+    sudo chmod 666 /var/run/docker.sock
+    log "Docker socket permissions set to 666 for DooD"
   fi
 }
 
