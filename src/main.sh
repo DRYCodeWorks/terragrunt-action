@@ -111,12 +111,23 @@ function setup_permissions {
   fi
 }
 
+# Write the AWS credentials Terragrunt's backend and provider read via the
+# named profile. Works for a static key and for temporary credentials from
+# aws-actions/configure-aws-credentials, which also sets AWS_SESSION_TOKEN;
+# without the session token line, temporary credentials are rejected by STS.
 function setup_aws_credentials_file() {
-  mkdir -p /github/workspace/.aws  
-  touch $AWS_SHARED_CREDENTIALS_FILE
-  echo "[tf-deploy-prod]" >> $AWS_SHARED_CREDENTIALS_FILE
-  echo aws_access_key_id=$AWS_ACCESS_KEY_ID >> $AWS_SHARED_CREDENTIALS_FILE
-  echo aws_secret_access_key=$AWS_SECRET_ACCESS_KEY >> $AWS_SHARED_CREDENTIALS_FILE
+  local -r profile="${AWS_PROFILE_NAME:-tf-deploy-prod}"
+  mkdir -p "$(dirname "${AWS_SHARED_CREDENTIALS_FILE}")"
+  touch "${AWS_SHARED_CREDENTIALS_FILE}"
+  chmod 600 "${AWS_SHARED_CREDENTIALS_FILE}"
+  {
+    echo "[${profile}]"
+    echo "aws_access_key_id=${AWS_ACCESS_KEY_ID}"
+    echo "aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}"
+    if [[ -n "${AWS_SESSION_TOKEN}" ]]; then
+      echo "aws_session_token=${AWS_SESSION_TOKEN}"
+    fi
+  } >> "${AWS_SHARED_CREDENTIALS_FILE}"
 }
 
 function add_trusted_host_to_pip() {  
