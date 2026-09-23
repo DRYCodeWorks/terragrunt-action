@@ -34,7 +34,8 @@ Supported environment variables:
 |AWS_PROFILE_NAME| The name associated with the invocation profile in the Terraform file |
 AWS_SHARED_CREDENTIALS_FILE | Environment variable is utilized to configure AWS for the Terragrunt invocation | 
 AWS_ACCESS_KEY_ID | AWS Access Key |
-AWS_SECRET_ACCESS_KEY | AWS Secret Access Key | 
+AWS_SECRET_ACCESS_KEY | AWS Secret Access Key |
+AWS_SESSION_TOKEN | Session token, when the job authenticated through OIDC (`aws-actions/configure-aws-credentials`). Written to the profile only when set. |
 PIP_CONF_FILE | Location of pip configuration file for use when fetching from private artifactory |
 
 ## Outputs
