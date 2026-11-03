@@ -130,7 +130,12 @@ function setup_aws_credentials_file() {
   } >> "${AWS_SHARED_CREDENTIALS_FILE}"
 }
 
-function add_trusted_host_to_pip() {  
+function add_trusted_host_to_pip() {
+  # Only Python apps have a pip.conf; a Node app (auth-service) has none.
+  if [[ -z "${PIP_CONF_FILE:-}" || ! -f "/github/workspace/${PIP_CONF_FILE}" ]]; then
+    log "No pip.conf at ${PIP_CONF_FILE:-(unset)}, so pip stays unconfigured"
+    return 0
+  fi
   mkdir -p ~/.config/pip/
   mkdir -p /github/workspace/.config/pip/
   cp /github/workspace/$PIP_CONF_FILE ~/.config/pip/pip.conf
